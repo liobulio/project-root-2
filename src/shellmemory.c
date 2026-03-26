@@ -80,7 +80,7 @@ const char *get_line(size_t index) {
 // Shell memory functions --> we treat the old shell memory struct as variable store
 // -----------Variable Store-----------
 
-struct memory_struct // block or line
+struct memory_struct { // block or line
     char *var;
     char *value;
 };
@@ -134,14 +134,13 @@ char *mem_get_value(char *var_in) {
 
 struct frame_slot {
     char *line;
-}
+};
 
 struct frame_meta {
     int allocated;
     unsigned long lru_clock; // later for LRU policy 
-}
+};
 
-const int nf = FRAME_STORE_SIZE / FRAME_SIZE
 
 // FRAME_SIZE defined in shellmemory.h
 static struct frame_slot fstore[FRAME_STORE_SIZE]; // one slot = one line, an array of lines
@@ -156,6 +155,7 @@ void frame_store_init() {
         fstore[i].line = NULL;
     }
     
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE
     for (int j = 0; j < nf; j++) {
         fmeta[j].allocated = 0; // mark as free and available to load more frames
         fmeta[j].lru_clock = 0;
@@ -165,6 +165,7 @@ void frame_store_init() {
 
 // find the first available frame and returns the index of that frame
 int frame_store_alloc_frame() {
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE
     for (int f = 0; f < nf; f++) {
         if (!fmeta[f].allocated) {
             fmeta[f].allocated = 1;
@@ -197,10 +198,11 @@ void frame_store_free_frame(int frame) {
 // ignores empty frames, and search for the frame having the smallest lru_clock
 // returns the index of the oldest frame/victim
 int frame_store_lru_victim() {
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE
     int victim = -1;
     unsigned long oldest = (unsigned long)(-1);
     for (int i = 0; i < nf; i++) {
-        if (fmeta[f].allocated && fmeta[f].lru_clock < oldest) {
+        if (fmeta[i].allocated && fmeta[f].lru_clock < oldest) {
             oldest = fmeta[i].lru_clock;
             victim = i;
         }
