@@ -28,9 +28,13 @@ Clean before using
 ```
 make clean
 ```
-Interactive mode
+Compile the shell
 ```
 make mysh framesize=X varsize=Y
+```
+Interactive mode
+```
+./mysh
 ```
 Batch mode
 ```
