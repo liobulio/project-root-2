@@ -1,13 +1,16 @@
 #include <stdio.h>
-#define MEM_SIZE 1000
+#define FRAME_SIZE 3
 
+//variable store
 void mem_init();
 char *mem_get_value(char *var);
 void mem_set_value(char *var, char *value);
 
-
-void assert_linememory_is_empty(void);
-size_t allocate_line(const char *line);
-void free_line(size_t index);
-const char *get_line(size_t index);
-void reset_linememory_allocator(void);
+//frame store
+void frame_store_init();
+int frame_store_alloc_frames();
+void frame_store_set_line(int frame, int line_in_frame, const char *text);
+const char *frame_store_get_line(int frame, int line_in_frame);
+void frame_store_free_frame(int frame);
+int frame_store_lru_victim(void);
+void frame_store_print_frame(int_frame);
