@@ -22,3 +22,5 @@ const char *frame_store_get_line(int frame, int line_in_frame);
 void frame_store_free_frame(int frame);
 int frame_store_lru_victim(void);
 void frame_store_print_frame(int frame);
+void frame_store_is_allocated();
+void frame_store_num_frames();
