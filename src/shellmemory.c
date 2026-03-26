@@ -225,4 +225,14 @@ void frame_store_print_frame(int frame) {
     printf("\n");
 }
 
+void frame_store_is_allocated(int frame) {
+   return fmeta[frame].allocated;
+}
+void frame_store_num_frames() {
+     return FRAME_STORE_SIZE / FRAME_SIZE;
+}
+
+void frame_store_mark_used(int frame) {
+    fmeta[frame].lru_clock = ++g_clock;
+}
 
