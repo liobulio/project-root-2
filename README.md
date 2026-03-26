@@ -9,6 +9,9 @@
 - This implementation uses the starter code provided by the OS team.
 
 ## What we did
-* Split Shell Memory
+* Split Shell Memory (1.2.1)
+  * into 
 * Paging Infrastructure
 * Allow Duplicate Script Names in `exec`
+* Demand Paging (1.2.2)
+* LRU Eviction (1.2.3)
