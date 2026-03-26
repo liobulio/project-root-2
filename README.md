@@ -8,7 +8,7 @@
 ## Startercode Declaration 
 - This implementation uses the starter code provided by the OS team.
 
-## What we did
+## Split of Work
 * Split Shell Memory (1.2.1)
   * into frame store and variable store 
 * Paging Infrastructure
