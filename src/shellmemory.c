@@ -181,8 +181,9 @@ void frame_store_set_line(int frame, int line_in_frame, const char *text) {
     fstore[slot].line = text ? strdup(text) : NULL;
 }
 
+// frame: 0-2, FRAME_SIZE: 3, line_in_frame: 0-2
 const char *frame_store_get_line(int frame, int line_in_frame) {
-    int slot = frame * FRAME_SIZE + line_in_frame;
+    int slot = frame * FRAME_SIZE + line_in_frame; 
     return fstore[slot].line;
 }
 
@@ -190,4 +191,38 @@ void frame_store_free_frame(int frame) {
     fmeta[frame].allocated = 0;
     fmeta[frame].lru_clock = 0;
 }
+
+
+// scanning for the oldest frame
+// ignores empty frames, and search for the frame having the smallest lru_clock
+// returns the index of the oldest frame/victim
+int frame_store_lru_victim() {
+    int victim = -1;
+    unsigned long oldest = (unsigned long)(-1);
+    for (int i = 0; i < nf; i++) {
+        if (fmeta[f].allocated && fmeta[f].lru_clock < oldest) {
+            oldest = fmeta[i].lru_clock;
+            victim = i;
+        }
+    }
+    return victim;
+}
+
+
+void frame_store_print_frame(int frame) {
+    /* Print a blank line, then the FRAME_SIZE lines, then a blank line.
+       Each stored line already ends with \n (or no newline if last of file). */
+    printf("\n");
+    for (int i = 0; i < FRAME_SIZE; i++) {
+        const char *line = frame_store_get_line(frame, i);
+        if (line) {
+            printf("%s", line);
+            /* ensure newline */
+            size_t len = strlen(line);
+            if (len == 0 || line[len-1] != '\n') printf("\n");
+        }
+    }
+    printf("\n")
+}
+
 
