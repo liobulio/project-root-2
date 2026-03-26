@@ -208,10 +208,8 @@ int frame_store_lru_victim() {
     return victim;
 }
 
-
+// print the content of  the victim page, 
 void frame_store_print_frame(int frame) {
-    /* Print a blank line, then the FRAME_SIZE lines, then a blank line.
-       Each stored line already ends with \n (or no newline if last of file). */
     printf("\n");
     for (int i = 0; i < FRAME_SIZE; i++) {
         const char *line = frame_store_get_line(frame, i);
@@ -222,7 +220,7 @@ void frame_store_print_frame(int frame) {
             if (len == 0 || line[len-1] != '\n') printf("\n");
         }
     }
-    printf("\n")
+    printf("\n");
 }
 
 
