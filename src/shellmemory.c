@@ -8,7 +8,7 @@
 #define true 1
 #define false 0
 
-
+/* since we don't contiguously olad lins any more
 // Helper functions
 int match(char *model, char *var) {
     int i, len = strlen(var), matchCount = 0;
@@ -76,22 +76,20 @@ const char *get_line(size_t index) {
     assert(linememory[index].allocated);
     return linememory[index].line;
 }
+*/
+// Shell memory functions --> we treat the old shell memory struct as variable store
+// -----------Variable Store-----------
 
-
-// Shell memory functions
-
-struct memory_struct { // block or line
+struct memory_struct // block or line
     char *var;
     char *value;
 };
 
-struct memory_struct shellmemory[MEM_SIZE];
-
-
+struct memory_struct shellmemory[VAR_MEM_SIZE];
 
 void mem_init() {
     int i;
-    for (i = 0; i < MEM_SIZE; i++) {
+    for (i = 0; i < VAR_MEM_SIZE; i++) {
         shellmemory[i].var = "none";
         shellmemory[i].value = "none";
     }
@@ -101,7 +99,7 @@ void mem_init() {
 void mem_set_value(char *var_in, char *value_in) {
     int i;
 
-    for (i = 0; i < MEM_SIZE; i++) {
+    for (i = 0; i < VAR_MEM_SIZE; i++) {
         if (strcmp(shellmemory[i].var, var_in) == 0) {
             shellmemory[i].value = strdup(value_in);
             return;
@@ -109,7 +107,7 @@ void mem_set_value(char *var_in, char *value_in) {
     }
 
     //Value does not exist, need to find a free spot.
-    for (i = 0; i < MEM_SIZE; i++) {
+    for (i = 0; i < VAR_MEM_SIZE; i++) {
         if (strcmp(shellmemory[i].var, "none") == 0) {
             shellmemory[i].var = strdup(var_in);
             shellmemory[i].value = strdup(value_in);
@@ -124,10 +122,72 @@ void mem_set_value(char *var_in, char *value_in) {
 char *mem_get_value(char *var_in) {
     int i;
 
-    for (i = 0; i < MEM_SIZE; i++) {
+    for (i = 0; i < VAR_MEM_SIZE; i++) {
         if (strcmp(shellmemory[i].var, var_in) == 0) {
             return strdup(shellmemory[i].value);
         }
     }
     return NULL;
 }
+
+// -----------Frame Store-----------
+
+struct frame_slot {
+    char *line;
+}
+
+struct frame_meta {
+    int allocated;
+    unsigned long lru_clock; // later for LRU policy 
+}
+
+const int nf = FRAME_STORE_SIZE / FRAME_SIZE
+
+// FRAME_SIZE defined in shellmemory.h
+static struct frame_slot fstore[FRAME_STORE_SIZE]; // one slot = one line, an array of lines
+static struct frame_meta fmeta[FRAME_STORE_SIZE / FRAME_SIZE];  // metadata about the frames, an array of frames
+
+static unsigned long g_clock = 0;
+
+void frame_store_init() {
+    // free each line and reset the pointer to zero
+    for (int i = 0; i < FRAME_STORE_SIZE; i++) {
+        free(fstore[i].line);
+        fstore[i].line = NULL;
+    }
+    
+    for (int j = 0; j < nf; j++) {
+        fmeta[j].allocated = 0; // mark as free and available to load more frames
+        fmeta[j].lru_clock = 0;
+    }
+    g_clock = 0;
+}
+
+// find the first available frame and returns the index of that frame
+int frame_store_alloc_frame() {
+    for (int f = 0; f < nf; f++) {
+        if (!fmeta[f].allocated) {
+            fmeta[f].allocated = 1;
+            fmeta[f].lru_clock = ++g_clock;
+            return f; 
+        }
+    }
+    return -1; // frame store is full
+}
+
+void frame_store_set_line(int frame, int line_in_frame, const char *text) {
+    int slot = frame * FRAME_SIZE + line_in_frame;
+    free(fstore[slot].line);
+    fstore[slot].line = text ? strdup(text) : NULL;
+}
+
+const char *frame_store_get_line(int frame, int line_in_frame) {
+    int slot = frame * FRAME_SIZE + line_in_frame;
+    return fstore[slot].line;
+}
+
+void frame_store_free_frame(int frame) {
+    fmeta[frame].allocated = 0;
+    fmeta[frame].lru_clock = 0;
+}
+
