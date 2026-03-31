@@ -6,7 +6,7 @@
 - Zili Zhuang [261238809]
 
 ## Startercode Declaration 
-- This implementation uses the starter code provided by the OS team.
+- This implementation uses our own code form assignment#2.
 
 ## Split of Work
 * Split Shell Memory (1.2.1)
