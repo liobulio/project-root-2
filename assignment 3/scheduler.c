@@ -165,15 +165,15 @@ int scheduler(int policy_code) {
         }
     }
     
-    else if (policy_code == POLICY_RR || policy_code == POLICY_AGING || policy_code == POLICY_RR30 ) {
+    else if (policy_code == POLICY_RR || policy_code == POLICY_AGING || policy_code == POLICY_RR30) {
 
-        //time slice for rr is 2 instructions, and 1 for aging
+        // Time slice configuration
         int time_slice;
         if (policy_code == POLICY_RR) {
             time_slice = 2;
         }
         else if (policy_code == POLICY_AGING) {
-            time_slice = 9999;
+            time_slice = 1;  // Aging uses 1 instruction time slice
         }
         else {
             time_slice = 30;
@@ -182,22 +182,24 @@ int scheduler(int policy_code) {
         while (my_queue->head != NULL) {
             PCB *current = dequeue(my_queue);
 
-            int end_position = current->start_position + current->length;
-            int lines_run = 0; //lines that had been run
+            int total_instructions = current->num_pages * FRAME_SIZE;
+            int lines_run = 0;
 
-	    //runs until finished or get preempted
-            while (lines_run < time_slice && current->pc_instruction_index < end_position) {
+            // Run until finished or preempted
+            while (lines_run < time_slice && current->pc < total_instructions) {
+                // PAGING: Use get_instruction()
+                char *line = get_instruction(current, current->pc);
+                if (line != NULL) {
+                    parseInput(line);
+                }
 
-                char *line = mem_get_line(current->pc_instruction_index);
-                parseInput(line);
-
-                current->pc_instruction_index++;
+                current->pc++;
                 lines_run++;
-            
+            }
 
-            if (policy_code == POLICY_AGING) {
-
-				//age the queue
+            // Aging logic (after each instruction)
+            if (policy_code == POLICY_AGING && lines_run > 0) {
+                // Age all processes in the queue (not the current one)
                 PCB *temp = my_queue->head;
                 while (temp != NULL) {
                     if (temp->job_length_score > 0) {
@@ -205,20 +207,19 @@ int scheduler(int policy_code) {
                     }
                     temp = temp->next;
                 }
-	    		if (my_queue->head != NULL && my_queue->head->job_length_score < current->job_length_score) {
-	    			break;
-	    		}
             }
-		}
 
-            if (current->pc_instruction_index >= end_position) {
-                int final_line_index = current->start_position + current->length - 1;
-                unload_script_with_sharingt(current->start_position, final_line_index);
+            // Check if process finished
+            if (current->pc >= total_instructions) {
+                // PAGING: Unload with sharing
+                unload_script_with_sharing(current->script_name, current->page_table);
+                free(current->script_name);
                 free(current);
-            } else { //interrupted
+            } else {
+                // Not finished - re-enqueue
                 if (policy_code == POLICY_RR || policy_code == POLICY_RR30) {
                     enqueue_fifo(my_queue, current);
-                } else if (policy_code == POLICY_AGING){
+                } else if (policy_code == POLICY_AGING) {
                     enqueue_sorted_by_score(my_queue, current);
                 }
             }
