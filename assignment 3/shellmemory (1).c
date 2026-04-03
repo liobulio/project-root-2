@@ -44,12 +44,14 @@ void mem_init() {
         shellmemory[i].value = "none";
         shell_code[i] = NULL;
     }
-    for (i = 0; i < 5; i++) {
+
+    for (i = 0; i < MAX_LOADED_SCRIPTS; i++) {
         loaded_scripts[i].script_name = NULL;
         loaded_scripts[i].start_index = -1;
         loaded_scripts[i].length = 0;
         loaded_scripts[i].ref_count = 0;
     }
+
     num_loaded_scripts = 0;
 }
 
@@ -183,7 +185,7 @@ int mem_load_script_sharing(char *script, int *start_index) {
     return length;
 }
 
-// don't free loaded_script too fast, need to unload it until none of script share same memory
+// same as mem_cleanup_memory but only clean script when no share memory required
 void unload_script_with_sharing(char *script, int start_index) {
 
     for(int i = 0; i < num_loaded_scripts; i++) {
@@ -239,29 +241,6 @@ int mem_load_from_batch(int *start_index) {
 	// set start index of file to current index which is start+
 	*start_index = first_index;
 	return num_line;
-}
-// same as mem_cleanup_memory but only clean script when no share memory required
-void unload_script_with_sharing(char *script, int start_index) {
-
-    for(int i = 0; i < num_loaded_scripts; i++) {
-        if(loaded_scripts[i].script_name != NULL &&
-           strcmp(loaded_scripts[i].script_name, script) == 0 &&
-           loaded_scripts[i].start_index == start_index) {
-
-            loaded_scripts[i].ref_count--;
-
-            if(loaded_scripts[i].ref_count == 0) {
-                // Free the actual memory
-                mem_cleanup_script(start_index,
-                                  start_index + loaded_scripts[i].length - 1);
-                free(loaded_scripts[i].script_name);
-                loaded_scripts[i].script_name = NULL;
-
-                // Optional: compact the array (not necessary for small MAX)
-            }
-            break;
-           }
-    }
 }
 
 // -----------Frame Store-----------
@@ -368,4 +347,96 @@ int frame_store_num_frames() {
 
 void frame_store_mark_used(int frame) {
     fmeta[frame].lru_clock = ++g_clock;
+}
+
+int load_script_frames(char *filename, PCB *pcb) {
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) return -1;
+
+    char buffer[MAX_USER_INPUT];
+    int page = 0;
+
+    pcb->page_table = malloc(frame_store_num_frames() * sizeof(int));
+
+    while (1) {
+
+        int frame = frame_store_alloc_frame();
+        if(frame == -1) {
+			free(pcb->page_table);
+            fclose(f);
+            return -1;
+        }
+
+        int lines_loaded = 0;
+
+        for (int offset = 0; offset < FRAME_SIZE; offset++) {
+            if (fgets(buffer, sizeof(buffer), f)) {
+                frame_store_set_line(frame, offset, buffer);
+                lines_loaded++;
+            } else {
+                frame_store_set_line(frame, offset, NULL);
+            }
+        }
+
+        if(lines_loaded == 0) {
+            frame_store_free_frame(frame);
+            break;
+        }
+
+        pcb->page_table[page] = frame;
+        frame_store_mark_used(frame);
+        page++;
+    }
+
+    fclose(f);
+
+    pcb->num_pages = page;
+    pcb->total_instructions = page * FRAME_SIZE;
+
+    return 0;
+}
+
+char *get_instruction(PCB *pcb, int instruction_index) {
+    int page = instruction_index / FRAME_SIZE;
+    int offset = instruction_index % FRAME_SIZE;
+
+    if (page >= pcb->num_pages) return NULL;
+
+    int frame = pcb->page_table[page];
+    const char *line = frame_store_get_line(frame, offset);
+
+    // Update LRU for this frame
+    if (frame != -1) {
+        frame_store_mark_used(frame);
+    }
+
+    return (char *)line;
+}
+
+int load_script_with_sharing_paging(char *filename, PCB *pcb) {
+    // Check if already loaded
+    for(int i = 0; i < num_loaded_scripts; i++) {
+        if(loaded_scripts[i].script_name != NULL &&
+           strcmp(loaded_scripts[i].script_name, filename) == 0) {
+            // Share existing page table
+            pcb->page_table = loaded_scripts[i].page_table;
+            pcb->num_pages = loaded_scripts[i].num_pages;
+            loaded_scripts[i].ref_count++;
+            return 0;
+        }
+    }
+    
+    // Load new script using frames
+    int result = load_script_frames(filename, pcb);
+    
+    if(result == 0) {
+        // Add to tracking
+        loaded_scripts[num_loaded_scripts].script_name = strdup(filename);
+        loaded_scripts[num_loaded_scripts].page_table = pcb->page_table;
+        loaded_scripts[num_loaded_scripts].num_pages = pcb->num_pages;
+        loaded_scripts[num_loaded_scripts].ref_count = 1;
+        num_loaded_scripts++;
+    }
+    
+    return result;
 }
