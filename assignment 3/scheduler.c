@@ -213,7 +213,7 @@ int scheduler(int policy_code) {
 
             if (current->pc_instruction_index >= end_position) {
                 int final_line_index = current->start_position + current->length - 1;
-                mem_cleanup_script(current->start_position, final_line_index);
+                unload_script_with_sharingt(current->start_position, final_line_index);
                 free(current);
             } else { //interrupted
                 if (policy_code == POLICY_RR || policy_code == POLICY_RR30) {
