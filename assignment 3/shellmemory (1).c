@@ -358,7 +358,11 @@ int load_script_frames(char *filename, PCB *pcb) {
 
     pcb->page_table = malloc(frame_store_num_frames() * sizeof(int));
 
-    while (1) {
+	for (int i = 0; i < max_pages; i++) {
+        pcb->page_table[i] = -1;
+    }
+
+    while (page < max_pages && 1) {
 
         int frame = frame_store_alloc_frame();
         if(frame == -1) {
@@ -406,7 +410,7 @@ char *get_instruction(PCB *pcb, int instruction_index) {
     const char *line = frame_store_get_line(frame, offset);
 
     // Update LRU for this frame
-    if (frame != -1) {
+    if (frame != -1|| !frame_store_is_allocated(frame)) {
         frame_store_mark_used(frame);
     }
 
@@ -425,10 +429,10 @@ int load_script_with_sharing_paging(char *filename, PCB *pcb) {
             return 0;
         }
     }
-    
+
     // Load new script using frames
     int result = load_script_frames(filename, pcb);
-    
+
     if(result == 0) {
         // Add to tracking
         loaded_scripts[num_loaded_scripts].script_name = strdup(filename);
@@ -437,6 +441,6 @@ int load_script_with_sharing_paging(char *filename, PCB *pcb) {
         loaded_scripts[num_loaded_scripts].ref_count = 1;
         num_loaded_scripts++;
     }
-    
+
     return result;
 }
