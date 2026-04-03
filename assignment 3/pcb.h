@@ -9,11 +9,14 @@ typedef struct PCB {
     int pc_instruction_index;  //program counter
     int job_length_score;
     char *script_name;
+    int *page_table;
+	int num_pages;
+	int total_instructions;
     struct PCB *next;
 } PCB;
 
 //a pcb constructor so we don't use malloc and set the fields every time
-PCB *make_pcb(int pid, int start, int length);
+PCB * make_pcb(int pid, int start, int length, char *script_name);
 
 
 #endif
