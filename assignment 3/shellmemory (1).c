@@ -263,3 +263,109 @@ void unload_script_with_sharing(char *script, int start_index) {
            }
     }
 }
+
+// -----------Frame Store-----------
+
+struct frame_slot {
+    char *line;
+};
+
+struct frame_meta {
+    int allocated;
+    unsigned long lru_clock; // later for LRU policy
+};
+
+
+// FRAME_SIZE defined in shellmemory.h
+static struct frame_slot fstore[FRAME_STORE_SIZE]; // one slot = one line, an array of lines
+static struct frame_meta fmeta[FRAME_STORE_SIZE / FRAME_SIZE];  // metadata about the frames, an array of frames
+
+static unsigned long g_clock = 0;
+
+void frame_store_init() {
+    // free each line and reset the pointer to zero
+    for (int i = 0; i < FRAME_STORE_SIZE; i++) {
+        free(fstore[i].line);
+        fstore[i].line = NULL;
+    }
+
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE;
+    for (int j = 0; j < nf; j++) {
+        fmeta[j].allocated = 0; // mark as free and available to load more frames
+        fmeta[j].lru_clock = 0;
+    }
+    g_clock = 0;
+}
+
+// find the first available frame and returns the index of that frame
+int frame_store_alloc_frame() {
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE;
+    for (int f = 0; f < nf; f++) {
+        if (!fmeta[f].allocated) {
+            fmeta[f].allocated = 1;
+            fmeta[f].lru_clock = ++g_clock;
+            return f;
+        }
+    }
+    return -1; // frame store is full
+}
+
+void frame_store_set_line(int frame, int line_in_frame, const char *text) {
+    int slot = frame * FRAME_SIZE + line_in_frame;
+    free(fstore[slot].line);
+    fstore[slot].line = text ? strdup(text) : NULL;
+}
+
+// frame: 0-2, FRAME_SIZE: 3, line_in_frame: 0-2
+const char *frame_store_get_line(int frame, int line_in_frame) {
+    int slot = frame * FRAME_SIZE + line_in_frame;
+    return fstore[slot].line;
+}
+
+void frame_store_free_frame(int frame) {
+    fmeta[frame].allocated = 0;
+    fmeta[frame].lru_clock = 0;
+}
+
+
+// scanning for the oldest frame
+// ignores empty frames, and search for the frame having the smallest lru_clock
+// returns the index of the oldest frame/victim
+int frame_store_lru_victim() {
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE;
+    int victim = -1;
+    unsigned long oldest = (unsigned long)(-1);
+    for (int i = 0; i < nf; i++) {
+        if (fmeta[i].allocated && fmeta[i].lru_clock < oldest) {
+            oldest = fmeta[i].lru_clock;
+            victim = i;
+        }
+    }
+    return victim;
+}
+
+// print the content of  the victim page,
+void frame_store_print_frame(int frame) {
+    printf("\n");
+    for (int i = 0; i < FRAME_SIZE; i++) {
+        const char *line = frame_store_get_line(frame, i);
+        if (line) {
+            printf("%s", line);
+            /* ensure newline */
+            size_t len = strlen(line);
+            if (len == 0 || line[len-1] != '\n') printf("\n");
+        }
+    }
+    printf("\n");
+}
+
+int frame_store_is_allocated(int frame) {
+   return fmeta[frame].allocated;
+}
+int frame_store_num_frames() {
+     return FRAME_STORE_SIZE / FRAME_SIZE;
+}
+
+void frame_store_mark_used(int frame) {
+    fmeta[frame].lru_clock = ++g_clock;
+}
