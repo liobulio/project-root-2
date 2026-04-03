@@ -39,4 +39,3 @@ int frame_store_is_allocated(int frame);
 int frame_store_num_frames();
 void frame_store_mark_used(int frame);
 
-#endif
