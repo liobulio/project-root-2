@@ -212,7 +212,7 @@ int scheduler(int policy_code) {
             // Check if process finished
             if (current->pc_instruction_index >= total_instructions) {
                 // PAGING: Unload with sharing
-                unload_script_with_sharing(current->script_name, current->page_table);
+                unload_script_with_sharing(current->script_name);
                 free(current->script_name);
                 free(current);
             } else {
