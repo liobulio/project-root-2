@@ -2,18 +2,14 @@
 #include <string.h>
 #include <stdio.h>
 #include "shellmemory.h"
+#include "pcb.h"
+#include "shell.h"
 
 struct memory_struct {
     char *var;
     char *value;
 };
 
-typedef struct {
-    char *script_name;
-    int start_index;
-    int length;
-    int ref_count;
-} loaded_script;
 
 // save information of loadedscripte
 loaded_script loaded_scripts[MAX_LOADED_SCRIPTS];

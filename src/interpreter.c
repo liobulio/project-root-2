@@ -5,7 +5,7 @@
 #else
 #   define debug(...)
 // NDEBUG disables asserts
-#   define NDEBUG
+//#   define NDEBUG
 #endif
 
 #include <assert.h>
@@ -384,9 +384,9 @@ int source(char *script) {
     }
 
 
-    int start_index = -1;
+    /*int start_index = -1;
     int end_index = -1;
-    int first_line = 1;
+    int first_line = 1;*/
     
     fgets(line, MAX_USER_INPUT - 1, p);
     while (1) {
@@ -575,7 +575,7 @@ int exec(char *args[], int args_size) {
 
         for (int i = 0; i < num_scripts; i++) {
             // PID is i+1 (1, 2, 3...)
-            PCB *new_pcb = make_pcb(i+2, starts[i+1], lengths[i+1], args[i+1);
+            PCB *new_pcb = make_pcb(i+2, starts[i+1], lengths[i+1], args[i+1]);
 
 			// euqueue policy
             if (policy_code == POLICY_FCFS || policy_code == POLICY_RR || policy_code == POLICY_RR30 ){
