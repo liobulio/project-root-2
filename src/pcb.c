@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "pcb.h"
 
 PCB * make_pcb(int pid, int start, int length, char *script_name) {

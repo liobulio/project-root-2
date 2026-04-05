@@ -13,6 +13,9 @@
 #define VAR_MEM_SIZE 10
 #endif
 
+#include "pcb.h"
+
+ 
 typedef struct {
 	char *script_name;
     	int start_index;
@@ -36,6 +39,8 @@ void mem_cleanup_script(int start_index, int end_index);
 int mem_load_script(char *script, int *start_index);
 int mem_load_from_batch(int *start_index);
 int mem_load_script_sharing(char *script, int *start_index);
+char *get_instruction(PCB *pcb, int instruction_index);
+void unload_script_with_sharing(char *script, int start_index);
 
 //frame store
 void frame_store_init();

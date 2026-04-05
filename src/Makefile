@@ -21,7 +21,7 @@ framesize ?= 18
 varmemsize ?= 10
 
 MEMFLAGS = -DFRAME_STORE_SIZE=$(framesize) -DVAR_MEM_SIZE=$(varmemsize)
-SRCS = shell.c interpreter.c shellmemory.c pcb.c queue.c schedule_policy.c
+SRCS = shell.c interpreter.c shellmemory.c pcb.c ready_queue.c scheduler.c
 OBJS = $(SRCS:.c=.o)							# change all suffix from .c to .o
 
 mysh: $(OBJS)

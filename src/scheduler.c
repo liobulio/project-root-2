@@ -186,14 +186,14 @@ int scheduler(int policy_code) {
             int lines_run = 0;
 
             // Run until finished or preempted
-            while (lines_run < time_slice && current->pc < total_instructions) {
+            while (lines_run < time_slice && current->pc_instruction_index < total_instructions) {
                 // PAGING: Use get_instruction()
-                char *line = get_instruction(current, current->pc);
+                char *line = get_instruction(current, current->pc_instruction_index);
                 if (line != NULL) {
                     parseInput(line);
                 }
 
-                current->pc++;
+                current->pc_instruction_index++;
                 lines_run++;
             }
 
@@ -210,7 +210,7 @@ int scheduler(int policy_code) {
             }
 
             // Check if process finished
-            if (current->pc >= total_instructions) {
+            if (current->pc_instruction_index >= total_instructions) {
                 // PAGING: Unload with sharing
                 unload_script_with_sharing(current->script_name, current->page_table);
                 free(current->script_name);

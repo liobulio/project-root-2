@@ -354,9 +354,13 @@ int load_script_frames(char *filename, PCB *pcb) {
 
     pcb->page_table = malloc(frame_store_num_frames() * sizeof(int));
 
-	for (int i = 0; i < max_pages; i++) {
+    // initialize the entire page table array to -1 
+    int total_slots = frame_store_num_frames();
+    for (int i = 0; i < total_slots; i++) {
         pcb->page_table[i] = -1;
-    }
+    }	
+
+   int max_pages = 2; // max 2 pages initially
 
     while (page < max_pages && 1) {
 

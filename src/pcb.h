@@ -10,8 +10,8 @@ typedef struct PCB {
     int job_length_score;
     char *script_name;
     int *page_table;
-	int num_pages;
-	int total_instructions;
+    int num_pages;
+    int total_instructions;
     struct PCB *next;
 } PCB;
 
