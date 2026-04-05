@@ -24,7 +24,7 @@ MEMFLAGS = -DFRAME_STORE_SIZE=$(framesize) -DVAR_MEM_SIZE=$(varmemsize)
 SRCS = shell.c interpreter.c shellmemory.c pcb.c queue.c schedule_policy.c
 OBJS = $(SRCS:.c=.o)							# change all suffix from .c to .o
 
-mysh: shell.c interpreter.c shellmemory.c
+mysh: $(OBJS)
 	$(CC) $(CFLAGS) -o mysh $(OBJS)
 
 %.o: %.c 										# compile any .c to .o
