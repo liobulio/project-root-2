@@ -182,26 +182,26 @@ int mem_load_script_sharing(char *script, int *start_index) {
 }
 
 // same as mem_cleanup_memory but only clean script when no share memory required
-void unload_script_with_sharing(char *script, int start_index) {
-
+void unload_script_with_sharing_paging(char *script) {
     for(int i = 0; i < num_loaded_scripts; i++) {
         if(loaded_scripts[i].script_name != NULL &&
-           strcmp(loaded_scripts[i].script_name, script) == 0 &&
-           loaded_scripts[i].start_index == start_index) {
+           strcmp(loaded_scripts[i].script_name, script) == 0) {
 
             loaded_scripts[i].ref_count--;
 
             if(loaded_scripts[i].ref_count == 0) {
-                // Free the actual memory
-                mem_cleanup_script(start_index,
-                                  start_index + loaded_scripts[i].length - 1);
+                // Assignment states: Do NOT clean up frames in the frame store upon termination.
+                // We only free the page table array itself and the string to prevent memory leaks.
+                if (loaded_scripts[i].page_table != NULL) {
+                    free(loaded_scripts[i].page_table);
+                    loaded_scripts[i].page_table = NULL;
+                }
+                
                 free(loaded_scripts[i].script_name);
                 loaded_scripts[i].script_name = NULL;
-
-                // Optional: compact the array (not necessary for small MAX)
             }
             break;
-           }
+        }
     }
 }
 
