@@ -40,7 +40,7 @@ int mem_load_script(char *script, int *start_index);
 int mem_load_from_batch(int *start_index);
 int mem_load_script_sharing(char *script, int *start_index);
 char *get_instruction(PCB *pcb, int instruction_index);
-void unload_script_with_sharing(char *script, int start_index);
+void unload_script_with_sharing_paging(char *script);
 
 //frame store
 void frame_store_init();
