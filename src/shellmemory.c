@@ -349,55 +349,53 @@ int load_script_frames(char *filename, PCB *pcb) {
     FILE *f = fopen(filename, "r");
     if (f == NULL) return -1;
 
-    char buffer[MAX_USER_INPUT];
-    int page = 0;
+    int total_lines = 0;
+    char buffer[1000];
+    while (fgets(buffer, sizeof(buffer), f)) total_lines++;
+    rewind(f); // reset file pointer to beginning
+
+
+    pcb->num_pages = (total_lines + FRAME_SIZE - 1)/FRAME_SIZE;
+    pcb->total_instructions = pcb->num_pages * FRAME_SIZE;
 
     pcb->page_table = malloc(frame_store_num_frames() * sizeof(int));
-
     // initialize the entire page table array to -1 
     int total_slots = frame_store_num_frames();
     for (int i = 0; i < total_slots; i++) {
         pcb->page_table[i] = -1;
     }	
 
-   int max_pages = 2; // max 2 pages initially
 
-    while (page < max_pages && 1) {
+   int page = 0;
+   int max_initial_pages = 2; // max 2 pages initially
+
+    while (page < max_initial_pages && page < pcb->num_pages) {
 
         int frame = frame_store_alloc_frame();
         if(frame == -1) {
-			free(pcb->page_table);
-            fclose(f);
-            return -1;
-        }
+		break;        
+	}
 
-        int lines_loaded = 0;
 
         for (int offset = 0; offset < FRAME_SIZE; offset++) {
             if (fgets(buffer, sizeof(buffer), f)) {
                 frame_store_set_line(frame, offset, buffer);
-                lines_loaded++;
             } else {
                 frame_store_set_line(frame, offset, NULL);
             }
         }
 
-        if(lines_loaded == 0) {
-            frame_store_free_frame(frame);
-            break;
-        }
 
         pcb->page_table[page] = frame;
-        frame_store_mark_used(frame);
+        //fmeta[frame].owning_page_table = pcb->page_table;
+	//fmeta[frame].owning_page_index = page;
+	frame_store_mark_used(frame);
         page++;
     }
 
     fclose(f);
-
-    pcb->num_pages = page;
-    pcb->total_instructions = page * FRAME_SIZE;
-
     return 0;
+
 }
 
 char *get_instruction(PCB *pcb, int instruction_index) {
