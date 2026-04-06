@@ -374,7 +374,7 @@ int cd(char *path) {
     return 0;
 }
 
-int source(char *script) {
+/*int source(char *script) {
     int errCode = 0;
     char line[MAX_USER_INPUT];
     FILE *p = fopen(script, "rt");      // the program is in a file
@@ -384,9 +384,9 @@ int source(char *script) {
     }
 
 
-    /*int start_index = -1;
+    int start_index = -1;
     int end_index = -1;
-    int first_line = 1;*/
+    int first_line = 1;
     
     fgets(line, MAX_USER_INPUT - 1, p);
     while (1) {
@@ -411,8 +411,14 @@ int source(char *script) {
     fclose(p);
 
     return errCode;
-}
+}*/
 
+int source(char *script){
+    char *args[2];
+    args[0] = script;
+    args[2] = "RR";
+    return exec(args, 2);
+}
 int run(char *args[], int arg_size) {
     // copy the args into a new NULL-terminated array.
     char **adj_args = calloc(arg_size + 1, sizeof(char *));
