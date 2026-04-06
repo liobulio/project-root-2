@@ -547,7 +547,7 @@ int exec(char *args[], int args_size) {
 	     }
          }
     }
-    /*else{ //background != 1, foreground mode
+    else{ //background != 1, foreground mode
 	for(int i = 0; i < num_scripts; i++) {                    
 	    PCB *new_pcb = make_pcb(i + 1, 0, 0, args[i]);		
 	    lengths[i] = mem_load_script_sharing(args[i], &starts[i]);
@@ -600,7 +600,7 @@ int exec(char *args[], int args_size) {
 			}
 
         }
-    }*/
+    }
     else {
         for (int i = 0; i < num_scripts; i++) {
             // PID is i+1 (1, 2, 3...)
