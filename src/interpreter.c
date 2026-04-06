@@ -464,7 +464,7 @@ int exec(char *args[], int args_size) {
     char *policy_str;
     int policy_code = -1;
     int background = 0;
-	int multithread = 0;
+    int multithread = 0;
     int num_scripts;
     // extract and validate the policy
 
