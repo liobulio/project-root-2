@@ -454,7 +454,7 @@ int run(char *args[], int arg_size) {
 int source(char *script) {
     char *args[2];
     args[0] = script;
-    args[2] = "RR";
+    args[1] = "RR";
     return exec(args, 2);
 }
 
@@ -528,7 +528,8 @@ int exec(char *args[], int args_size) {
             printf("Error while loading script\n");
             error = true;
         }
-	else {
+
+	    else {
 	     starts[0] = batch_start;
              lengths[0] = length_batch;
 
@@ -546,7 +547,7 @@ int exec(char *args[], int args_size) {
 	     }
          }
     }
-    else{ //background != 1, foreground mode
+    /*else{ //background != 1, foreground mode
 	for(int i = 0; i < num_scripts; i++) {                    
 	    PCB *new_pcb = make_pcb(i + 1, 0, 0, args[i]);		
 	    lengths[i] = mem_load_script_sharing(args[i], &starts[i]);
@@ -599,7 +600,7 @@ int exec(char *args[], int args_size) {
 			}
 
         }
-    }
+    }*/
     else {
         for (int i = 0; i < num_scripts; i++) {
             // PID is i+1 (1, 2, 3...)
