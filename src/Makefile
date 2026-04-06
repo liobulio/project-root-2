@@ -25,10 +25,10 @@ SRCS = shell.c interpreter.c shellmemory.c pcb.c ready_queue.c scheduler.c
 OBJS = $(SRCS:.c=.o)							# change all suffix from .c to .o
 
 mysh: $(OBJS)
-	$(CC) $(CFLAGS) -o mysh $(OBJS)
+	@$(CC) $(CFLAGS) -o mysh $(OBJS)
 
 %.o: %.c 										# compile any .c to .o
-	$(CC) $(CFLAGS) $(MEMFLAGS) -c $< -o $@		# $< are source(.c) and $@ are destiantion(.o)
+	@$(CC) $(CFLAGS) $(MEMFLAGS) -c $< -o $@		# $< are source(.c) and $@ are destiantion(.o)
 
 clean: 
 	rm mysh; rm *.o
