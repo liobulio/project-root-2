@@ -442,3 +442,48 @@ int load_script_with_sharing_paging(char *filename, PCB *pcb) {
 
     return result;
 }
+
+int page_fault_occur(PCB *pcb, int missing_page) {
+
+    // always print this if page fault occur
+    printf("Page fault!\n");
+
+    int frame = frame_store_alloc_frame();
+
+    // -1 means it is full
+    if (frame == -1) {
+        printf("Victim page contents:\n");
+
+        // this get the victim frame
+        victim_frame = frame_store_lru_victim();
+
+        // this print content of that victim frame
+        frame_store_print_frame(victim_frame);
+
+        printf("End of victim page contents.\n");
+
+        // this make sure update to victim_frame before freeing it
+        frame = victim_frame;
+        frame_store_free_frame(victim_frame);
+    }
+
+    // Load the missing page from file
+    if (load_page_from_file(pcb->script_name, missing_page, frame) == -1) {
+        return -1;
+    }
+
+    // Update page table
+    pcb->page_table[missing_page] = frame;
+
+    // Track ownership
+    PCB *owner = frame_owner[frame];
+    int page = frame_page[frame];
+
+    if(owner != NULL)
+        owner->page_table[page] = -1;
+
+    // Mark as recently used (for LRU)
+    frame_store_mark_used(frame);
+
+    return frame;
+}
