@@ -248,6 +248,8 @@ struct frame_slot {
 struct frame_meta {
     int allocated;
     unsigned long lru_clock; // later for LRU policy
+	int *owning_page_table;  // point to the table owning it
+    int owning_page_index;	// indicate which page it is at in a table
 };
 
 
@@ -268,6 +270,8 @@ void frame_store_init() {
     for (int j = 0; j < nf; j++) {
         fmeta[j].allocated = 0; // mark as free and available to load more frames
         fmeta[j].lru_clock = 0;
+		fmeta[j].owning_page_table = NULL; 
+        fmeta[j].owning_page_index = -1;
     }
     g_clock = 0;
 }
@@ -387,8 +391,8 @@ int load_script_frames(char *filename, PCB *pcb) {
 
 
         pcb->page_table[page] = frame;
-        //fmeta[frame].owning_page_table = pcb->page_table;
-	//fmeta[frame].owning_page_index = page;
+        fmeta[frame].owning_page_table = pcb->page_table;
+		fmeta[frame].owning_page_index = page;
 	frame_store_mark_used(frame);
         page++;
     }
