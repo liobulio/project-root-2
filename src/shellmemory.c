@@ -405,13 +405,17 @@ char *get_instruction(PCB *pcb, int instruction_index) {
     if (page >= pcb->num_pages) return NULL;
 
     int frame = pcb->page_table[page];
-    const char *line = frame_store_get_line(frame, offset);
 
     // Update LRU for this frame
+    if (frame == -1|| !frame_store_is_allocated(frame)) {
+        return -2;
+    }
+
+    const char *line = frame_store_get_line(frame, offset);
+
     if (frame != -1|| !frame_store_is_allocated(frame)) {
         frame_store_mark_used(frame);
     }
-
     return (char *)line;
 }
 
