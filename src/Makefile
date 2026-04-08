@@ -31,5 +31,5 @@ mysh: $(OBJS)
 	@$(CC) $(CFLAGS) $(MEMFLAGS) -c $< -o $@		# $< are source(.c) and $@ are destiantion(.o)
 
 clean: 
-	rm mysh; rm *.o
+	rm -f mysh; rm *.o
 
