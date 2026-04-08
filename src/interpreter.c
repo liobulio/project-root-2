@@ -35,7 +35,6 @@
 
 ready_queue *my_queue = NULL;
 
-
 int badcommand() {
     printf("Unknown Command\n");
     return 1;
@@ -545,7 +544,7 @@ int exec(char *args[], int args_size) {
              	loaded++;
 	     }
          }
-    }
+    } 
     else{
 		//background != 1, foreground mode
 		if (my_queue == NULL) my_queue = create_queue();
@@ -575,7 +574,7 @@ int exec(char *args[], int args_size) {
     }
 
 
-    // create PCBs and enqueue them
+    /* create PCBs and enqueue them
     if (background == 1) {
 
 		// deal with first pcb and enqueue it with fifo
@@ -614,7 +613,7 @@ int exec(char *args[], int args_size) {
             }
 
         }
-    }
+    } */
 
     if (multithread == 1) {
         enable_multithreading(); 
