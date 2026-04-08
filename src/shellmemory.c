@@ -270,7 +270,7 @@ void frame_store_init() {
     for (int j = 0; j < nf; j++) {
         fmeta[j].allocated = 0; // mark as free and available to load more frames
         fmeta[j].lru_clock = 0;
-		fmeta[j].owner = NULL;
+		fmeta[j].pcb_of_frame = NULL;
         fmeta[j].page = -1;
     }
     g_clock = 0;
