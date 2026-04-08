@@ -621,12 +621,5 @@ int exec(char *args[], int args_size) {
     return scheduler(policy_code);
 }
 
-void frame_store_clear_owner(PCB *pcb) {
-    int nf = FRAME_STORE_SIZE / FRAME_SIZE;
-    for (int f = 0; f < nf; f++) {
-        if (fmeta[f].pcb_of_frame == pcb) {
-            fmeta[f].pcb_of_frame = NULL;
-            fmeta[f].page = -1;
-        }
-    }
+
 }
