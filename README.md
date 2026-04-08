@@ -40,3 +40,11 @@ Batch mode
 ```
 ./mysh < <path>/testfile.txt
 ```
+run before testing tc3.txt
+```bash
+make clean && make mysh framesize=21 varmemsize=10
+```
+run before testing tc5.txt
+```bash
+make clean && make mysh framesize=6 varmemsize=10
+```
