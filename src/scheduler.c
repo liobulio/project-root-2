@@ -189,8 +189,16 @@ int scheduler(int policy_code) {
             while (lines_run < time_slice && current->pc_instruction_index < total_instructions) {
                 // PAGING: Use get_instruction()
                 char *line = get_instruction(current, current->pc_instruction_index);
-                if (line != NULL) {
+                if (line == (char *) -20){
+					int missing_page = current->pc_instruction_index / FRAME_SIZE;
+					page_fault_occur(current, missing_page);
+					// enqueue_fifo(my_queue, current);
+					break;
+				}
+			 	else if (line != (char *) -20) {
                     parseInput(line);
+                    current->pc_instruction_index++;
+                	lines_run++;
                 }
 
                 current->pc_instruction_index++;
