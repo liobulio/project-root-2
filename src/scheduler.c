@@ -219,6 +219,7 @@ int scheduler(int policy_code) {
             // Check if process finished
             if (current->pc_instruction_index >= total_instructions) {
                 // PAGING: Unload with sharing
+				frame_store_clear_owner(current);
                 unload_script_with_sharing_paging(current->script_name);
                 free(current->script_name);
                 free(current);
