@@ -461,7 +461,6 @@ int source(char *script) {
 // exec function
 int exec(char *args[], int args_size) {
 
-
     // input validation
     if(args_size < 2 || args_size > 6){
         printf("Error: Need 1-3 scripts + policy (total %d arguments)\n", args_size);
@@ -547,19 +546,18 @@ int exec(char *args[], int args_size) {
 	     }
          }
     }
-    else{ //background != 1, foreground mode
-	for(int i = 0; i < num_scripts; i++) {                    
-	    PCB *new_pcb = make_pcb(i + 1, 0, 0, args[i]);		
-	    lengths[i] = mem_load_script_sharing(args[i], &starts[i]);
-
-			// file (prog) doesn't exist
-            if(policy_code == POLICY_SJF) {
-		enqueue_sorted_by_length(my_queue, new_pcb);
-            }else if (policy_code == POLICY_AGING) {
-	    	enqueue_sorted_by_score(my_queue, new_pcb);
-	    }else {
-	    	enqueue_fifo(my_queue, new_pcb);
-	    }
+    else{
+		//background != 1, foreground mode
+		if (my_queue == NULL) my_queue = create_queue();
+	
+		for(int i = 0; i < num_scripts; i++) {                    
+	   	 	PCB *new_pcb = make_pcb(i + 1, 0, 0, args[i]);		
+	    	if (load_script_with_sharing_paging(args[i], new_pcb) == -1) {
+        		printf("Bad command: File not found\n");
+        		free(new_pcb->script_name); free(new_pcb);
+        		return -1;
+    		}
+    		enqueue_fifo(my_queue, new_pcb);  // (or sorted for SJF/AGING)	
         }
     }
 
