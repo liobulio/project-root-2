@@ -410,16 +410,18 @@ char *get_instruction(PCB *pcb, int instruction_index) {
 
     int frame = pcb->page_table[page];
 
-    // Update LRU for this frame
+    // update LRU for this frame
     if (frame == -1|| !frame_store_is_allocated(frame)) {
-        return -20;
+        return NULL; // return NULL so that schduler can trigger the page fault
     }
 
     const char *line = frame_store_get_line(frame, offset);
 
-    if (frame != -1|| !frame_store_is_allocated(frame)) {
+    /*if (frame != -1|| !frame_store_is_allocated(frame)) {
         frame_store_mark_used(frame);
-    }
+    }*/
+	
+	frame_store_mark_used(frame);
     return (char *)line;
 }
 
@@ -452,7 +454,8 @@ int load_script_with_sharing_paging(char *filename, PCB *pcb) {
 }
 
 int page_fault_occur(PCB *pcb, int missing_page) {
-
+	int frame = frame_store_alloc_frame();
+	
     // always print this if page fault occur
     printf("Page fault!\n");
 
@@ -460,8 +463,8 @@ int page_fault_occur(PCB *pcb, int missing_page) {
 
     // -1 means it is full
     if (frame == -1) {
-        printf("Victim page contents:\n");
-
+        printf("Page fault!\nVictim page contents:\n");
+		
         // get victim_frame and print its content
         victim = frame_store_lru_victim();
         frame_store_print_frame(victim);
