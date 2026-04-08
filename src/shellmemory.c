@@ -517,7 +517,7 @@ int page_fault_occur(PCB *pcb, int missing_page) {
         return -1;
     } */
 
-	load_page_from_file(pcb->script_name, missing_page, frame)
+	load_page_from_file(pcb->script_name, missing_page, frame);
     // Update page table
     pcb->page_table[missing_page] = frame;
     fmeta[frame].pcb_of_frame = pcb;
