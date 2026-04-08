@@ -362,10 +362,10 @@ int load_script_frames(char *filename, PCB *pcb) {
     pcb->num_pages = (total_lines + FRAME_SIZE - 1)/FRAME_SIZE;
     pcb->total_instructions = total_lines;
 
-    pcb->page_table = malloc(frame_store_num_frames() * sizeof(int));
-    // initialize the entire page table array to -1 
-    int total_slots = frame_store_num_frames();
-    for (int i = 0; i < total_slots; i++) {
+    pcb->page_table = malloc(pcb->num_pages * sizeof(int));
+    /* initialize the entire page table array to -1 
+    int total_slots = frame_store_num_frames(); */
+    for (int i = 0; i < pcb->num_pages; i++) {
         pcb->page_table[i] = -1;
     }	
 
