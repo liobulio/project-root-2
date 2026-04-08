@@ -18,11 +18,12 @@
  
 typedef struct {
 	char *script_name;
-    	int start_index;
-    	int length;
-    	int ref_count;
-    	int *page_table;
-    	int num_pages;
+    int start_index;
+    int length;
+    int ref_count;
+    int *page_table;
+    int num_pages;
+	int total_instructions;
 } loaded_script;
 
 
