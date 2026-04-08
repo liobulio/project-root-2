@@ -349,6 +349,16 @@ void frame_store_mark_used(int frame) {
     fmeta[frame].lru_clock = ++g_clock;
 }
 
+void frame_store_clear_owner(PCB *pcb) {
+    int nf = FRAME_STORE_SIZE / FRAME_SIZE;
+    for (int f = 0; f < nf; f++) {
+        if (fmeta[f].pcb_of_frame == pcb) {
+            fmeta[f].pcb_of_frame = NULL;
+            fmeta[f].page = -1;
+        }
+    }
+}
+
 int load_script_frames(char *filename, PCB *pcb) {
     FILE *f = fopen(filename, "r");
     if (f == NULL) return -1;
