@@ -30,7 +30,7 @@ make clean
 ```
 Compile the shell
 ```
-make mysh framesize=X varsize=Y
+make mysh framesize=X varsize=Y # X, Y are set to 18, 10 as default
 ```
 Interactive mode
 ```
