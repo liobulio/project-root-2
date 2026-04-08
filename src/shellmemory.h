@@ -56,5 +56,6 @@ void frame_store_print_frame(int frame);
 int frame_store_is_allocated(int frame);
 int frame_store_num_frames();
 void frame_store_mark_used(int frame);
+void frame_store_clear_owner(PCB *pcb);
 
 #endif
