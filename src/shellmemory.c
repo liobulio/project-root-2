@@ -248,8 +248,8 @@ struct frame_slot {
 struct frame_meta {
     int allocated;
     unsigned long lru_clock; // later for LRU policy
-	int *owning_page_table;  // point to the table owning it
-    int owning_page_index;	// indicate which page it is at in a table
+    PCB *pcb_of_frame;     // indicate pcb which contain that frame
+    int page;
 };
 
 
@@ -270,8 +270,8 @@ void frame_store_init() {
     for (int j = 0; j < nf; j++) {
         fmeta[j].allocated = 0; // mark as free and available to load more frames
         fmeta[j].lru_clock = 0;
-		fmeta[j].owning_page_table = NULL; 
-        fmeta[j].owning_page_index = -1;
+		fmeta[j].owner = NULL;
+        fmeta[j].page = -1;
     }
     g_clock = 0;
 }
@@ -412,7 +412,7 @@ char *get_instruction(PCB *pcb, int instruction_index) {
 
     // Update LRU for this frame
     if (frame == -1|| !frame_store_is_allocated(frame)) {
-        return -2;
+        return -20;
     }
 
     const char *line = frame_store_get_line(frame, offset);
@@ -462,17 +462,26 @@ int page_fault_occur(PCB *pcb, int missing_page) {
     if (frame == -1) {
         printf("Victim page contents:\n");
 
-        // this get the victim frame
-        victim_frame = frame_store_lru_victim();
-
-        // this print content of that victim frame
-        frame_store_print_frame(victim_frame);
+        // get victim_frame and print its content
+        victim = frame_store_lru_victim();
+        frame_store_print_frame(victim);
 
         printf("End of victim page contents.\n");
 
+        // update page table accordingly
+        PCB *pcb_victim = fmeta[victim].pcb_of_frame;
+        int victim_page = fmeta[victim].page;
+
+        if (pcb_victim != NULL)
+            pcb_victim->page_table[victim_page] = -1;
+
+        // reset frame meta
+        fmeta[victim].pcb_of_frame = NULL;
+        fmeta[victim].page = -1;
+
         // this make sure update to victim_frame before freeing it
-        frame = victim_frame;
-        frame_store_free_frame(victim_frame);
+        frame = victim;
+        frame_store_free_frame(victim);
     }
 
     // Load the missing page from file
@@ -482,13 +491,8 @@ int page_fault_occur(PCB *pcb, int missing_page) {
 
     // Update page table
     pcb->page_table[missing_page] = frame;
-
-    // Track ownership
-    PCB *owner = frame_owner[frame];
-    int page = frame_page[frame];
-
-    if(owner != NULL)
-        owner->page_table[page] = -1;
+    fmeta[frame].pcb_of_frame = pcb;
+    fmeta[frame].page = missing_page;
 
     // Mark as recently used (for LRU)
     frame_store_mark_used(frame);
