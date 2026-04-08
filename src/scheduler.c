@@ -182,28 +182,27 @@ int scheduler(int policy_code) {
         while (my_queue->head != NULL) {
             PCB *current = dequeue(my_queue);
 
-            int total_instructions = current->num_pages * FRAME_SIZE;
+            int total_instructions = current->total_instructions;
             int lines_run = 0;
 
             // Run until finished or preempted
             while (lines_run < time_slice && current->pc_instruction_index < total_instructions) {
                 // PAGING: Use get_instruction()
                 char *line = get_instruction(current, current->pc_instruction_index);
-                if (line == (char *) -20){
+                if (line == (char *) -1) {
 					int missing_page = current->pc_instruction_index / FRAME_SIZE;
 					page_fault_occur(current, missing_page);
-					// enqueue_fifo(my_queue, current);
+					enqueue_fifo(my_queue, current);
+					current = NULL;
 					break;
 				}
-			 	else if (line != (char *) -20) {
-                    parseInput(line);
-                    current->pc_instruction_index++;
-                	lines_run++;
-                }
-
+				
+				parseInput(line);
                 current->pc_instruction_index++;
                 lines_run++;
             }
+
+			if (current == NULL) continue;
 
             // Aging logic (after each instruction)
             if (policy_code == POLICY_AGING && lines_run > 0) {
