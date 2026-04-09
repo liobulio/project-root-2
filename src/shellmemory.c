@@ -153,13 +153,14 @@ int mem_load_script(char *script, int *start_index) {
 	return num_line;
 }
 
-// NEW PUBLIC function - use this everywhere instead
+// same idea of loading script with sharing memory
 int mem_load_script_sharing(char *script, int *start_index) {
     // Check if already loaded
     for(int i = 0; i < num_loaded_scripts; i++) {
         if(loaded_scripts[i].script_name != NULL &&
            strcmp(loaded_scripts[i].script_name, script) == 0) {
-            // Found existing script - share it!
+			// if there's already a shared script
+			// let them share same start_index, means sharing same code
             *start_index = loaded_scripts[i].start_index;
             loaded_scripts[i].ref_count++;
             return loaded_scripts[i].length;
@@ -168,8 +169,10 @@ int mem_load_script_sharing(char *script, int *start_index) {
 
     int length = mem_load_script(script, start_index);
 
+	// if no error while loading script
     if(length != -1) {
-        // Add to tracking table
+  		// if num of loaded script is still lower than maximum
+		// o/w don't load to it
         if(num_loaded_scripts < MAX_LOADED_SCRIPTS) {
             loaded_scripts[num_loaded_scripts].script_name = strdup(script);
             loaded_scripts[num_loaded_scripts].start_index = *start_index;
@@ -182,22 +185,23 @@ int mem_load_script_sharing(char *script, int *start_index) {
     return length;
 }
 
-// same as mem_cleanup_memory but only clean script when no share memory required
+// same as mem_cleanup_memory but only clean script when no share memory required ( no shared script )
 void unload_script_with_sharing_paging(char *script) {
+	// traverse all loaded scripts
     for(int i = 0; i < num_loaded_scripts; i++) {
-        if(loaded_scripts[i].script_name != NULL &&
-           strcmp(loaded_scripts[i].script_name, script) == 0) {
-
+		// if founded
+        if(loaded_scripts[i].script_name != NULL && strcmp(loaded_scripts[i].script_name, script) == 0) {
             loaded_scripts[i].ref_count--;
 
-            if(loaded_scripts[i].ref_count == 0) {
-                // Assignment states: Do NOT clean up frames in the frame store upon termination.
-                // We only free the page table array itself and the string to prevent memory leaks.
-                if (loaded_scripts[i].page_table != NULL) {
-                    free(loaded_scripts[i].page_table);
-                    loaded_scripts[i].page_table = NULL;
-                }
-                
+			// free script page_table and script -> set to null
+            if(loaded_scripts[i].ref_count == 0 && loaded_scripts[i].page_table != NULL) {
+            	free(loaded_scripts[i].page_table);
+                loaded_scripts[i].page_table = NULL;
+				free(loaded_scripts[i].script_name);
+                loaded_scripts[i].script_name = NULL;
+            }
+			// don't have to free page_table but need to free this sctipt
+			else if ( loaded_scripts[i].ref_count == 0 && loaded_scripts[i].page_table == NULL) {
                 free(loaded_scripts[i].script_name);
                 loaded_scripts[i].script_name = NULL;
             }
