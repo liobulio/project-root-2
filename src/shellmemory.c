@@ -190,8 +190,8 @@ void unload_script_with_sharing_paging(char *script) {
     for(int i = 0; i < num_loaded_scripts; i++) {
 		// if founded
         if(loaded_scripts[i].script_name != NULL && strcmp(loaded_scripts[i].script_name, script) == 0) {
+			
             loaded_scripts[i].ref_count--;
-
 			// free script page_table and script -> set to null
             if(loaded_scripts[i].ref_count == 0 && loaded_scripts[i].page_table != NULL) {
             	free(loaded_scripts[i].page_table);
