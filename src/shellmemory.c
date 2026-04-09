@@ -491,15 +491,10 @@ static int load_page_from_file(char *filename, int missing_page, int frame) {
 
 int page_fault_occur(PCB *pcb, int missing_page) {
 	
-    /* always print this if page fault occur
-    printf("Page fault!\n"); */
-
     int frame = frame_store_alloc_frame();
-
     // -1 means it is full
     if (frame == -1) {
-        printf("Page fault! Victim page contents:\n");
-		printf("\n");
+        printf("Page fault! \n Victim page contents:\n");
         // get victim_frame and print its content
         int victim = frame_store_lru_victim();
         frame_store_print_frame(victim);
@@ -518,17 +513,9 @@ int page_fault_occur(PCB *pcb, int missing_page) {
 		frame_store_free_frame(victim);
 		frame = frame_store_alloc_frame();
 
-        /* this make sure update to victim_frame before freeing it
-        frame = victim;
-        frame_store_free_frame(victim); */
     } else {
 		printf("Page fault!\n");
 	}
-
-    /* Load the missing page from file
-    if (load_page_from_file(pcb->script_name, missing_page, frame) == -1) {
-        return -1;
-    } */
 
 	load_page_from_file(pcb->script_name, missing_page, frame);
     // Update page table
