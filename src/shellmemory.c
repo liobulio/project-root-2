@@ -179,7 +179,6 @@ int mem_load_script_sharing(char *script, int *start_index) {
             loaded_scripts[num_loaded_scripts].ref_count = 1;
             num_loaded_scripts++;
         }
-    }
 
     return length;
 }
