@@ -488,7 +488,7 @@ static int load_page_from_file(char *filename, int missing_page, int frame) {
     return 0;
 }
 
-/*int page_fault_occur(PCB *pcb, int missing_page) {
+int page_fault_occur(PCB *pcb, int missing_page) {
 	
     int frame = frame_store_alloc_frame();
     // -1 means it is full
@@ -525,8 +525,9 @@ static int load_page_from_file(char *filename, int missing_page, int frame) {
     frame_store_mark_used(frame);
 
     return frame;
-}*/
-int page_fault_occur(PCB *pcb, int missing_page) {
+}
+
+/* int page_fault_occur(PCB *pcb, int missing_page) {
 
     int frame = frame_store_alloc_frame();
     // -1 means frame store is full
@@ -571,3 +572,4 @@ int page_fault_occur(PCB *pcb, int missing_page) {
 
     return frame;
 }
+*/
