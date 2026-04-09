@@ -494,6 +494,7 @@ int page_fault_occur(PCB *pcb, int missing_page) {
     // -1 means it is full
     if (frame == -1) {
         printf("Page fault! Victim page contents:\n");
+		printf("\n");
         // get victim_frame and print its content
         int victim = frame_store_lru_victim();
         frame_store_print_frame(victim);
