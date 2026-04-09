@@ -170,10 +170,9 @@ int mem_load_script_sharing(char *script, int *start_index) {
     int length = mem_load_script(script, start_index);
 
 	// if no error while loading script
-    if(length != -1) {
-  		// if num of loaded script is still lower than maximum
-		// o/w don't load to it
-        if(num_loaded_scripts < MAX_LOADED_SCRIPTS) {
+	// and if num of loaded script is still lower than maximum
+	// o/w don't load to it
+    if(length != -1 && num_loaded_scripts < MAX_LOADED_SCRIPTS) {
             loaded_scripts[num_loaded_scripts].script_name = strdup(script);
             loaded_scripts[num_loaded_scripts].start_index = *start_index;
             loaded_scripts[num_loaded_scripts].length = length;
