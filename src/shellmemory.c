@@ -523,7 +523,7 @@ static int load_page_from_file(char *filename, int missing_page, int frame) {
     pcb->page_table[missing_page] = frame;
     fmeta[frame].pcb_of_frame = pcb;
     fmeta[frame].page = missing_page;
-
+	// mark new frame used
     frame_store_mark_used(frame);
 
     return frame;
