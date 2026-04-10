@@ -573,48 +573,6 @@ int exec(char *args[], int args_size) {
         my_queue = create_queue();
     }
 
-
-    /* create PCBs and enqueue them
-    if (background == 1) {
-
-		// deal with first pcb and enqueue it with fifo
-		PCB *new_pcb = make_pcb(1, starts[0], lengths[0], args[0]);
-		enqueue_fifo(my_queue, new_pcb);
-
-        for (int i = 0; i < num_scripts; i++) {
-            // PID is i+1 (1, 2, 3...)
-            PCB *new_pcb = make_pcb(i+2, starts[i+1], lengths[i+1], args[i+1]);
-
-			// euqueue policy
-            if (policy_code == POLICY_FCFS || policy_code == POLICY_RR || policy_code == POLICY_RR30 ){
-                enqueue_fifo(my_queue, new_pcb);
-            }
-			else if (policy_code == POLICY_AGING) {
-                enqueue_sorted_by_score_with_batch(my_queue, new_pcb);
-            }
-			else if (policy_code == POLICY_SJF){
-				enqueue_sorted_by_length_with_batch(my_queue, new_pcb);
-			}
-
-        }
-    }
-    else {
-        for (int i = 0; i < num_scripts; i++) {
-            // PID is i+1 (1, 2, 3...)
-            PCB *new_pcb = make_pcb(i + 1, starts[i], lengths[i], args[i]);
-
-			// enqueue policy
-            if (policy_code == POLICY_SJF) {
-                enqueue_sorted_by_length(my_queue, new_pcb);
-            } else if (policy_code == POLICY_FCFS || policy_code == POLICY_RR || policy_code == POLICY_RR30 ){
-                enqueue_fifo(my_queue, new_pcb);
-            } else if ((policy_code == POLICY_AGING)) {
-                enqueue_sorted_by_score(my_queue, new_pcb);
-            }
-
-        }
-    } */
-
     if (multithread == 1) {
         enable_multithreading(); 
     } 
