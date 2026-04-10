@@ -429,10 +429,6 @@ char *get_instruction(PCB *pcb, int instruction_index) {
 
     const char *line = frame_store_get_line(frame, offset);
 	if (line == NULL) return NULL; // short last page 
-
-    /*if (frame != -1|| !frame_store_is_allocated(frame)) {
-        frame_store_mark_used(frame);
-    }*/
 	
 	frame_store_mark_used(frame);
     return (char *)line;
@@ -487,46 +483,6 @@ static int load_page_from_file(char *filename, int missing_page, int frame) {
     fclose(f);
     return 0;
 }
-
-/*int page_fault_occur(PCB *pcb, int missing_page) {
-	
-    int frame = frame_store_alloc_frame();
-    // -1 means it is full
-    if (frame == -1) {
-        printf("Page fault! Victim page contents:\n");
-		printf("\n");
-        // get victim_frame and print its content
-        int victim = frame_store_lru_victim();
-        frame_store_print_frame(victim);
-        printf("End of victim page contents.\n");
-
-        // update page table accordingly
-        PCB *pcb_victim = fmeta[victim].pcb_of_frame;
-        int victim_page = fmeta[victim].page;
-
-        if (pcb_victim != NULL)
-            pcb_victim->page_table[victim_page] = -1;
-
-        // reset frame meta
-        fmeta[victim].pcb_of_frame = NULL;
-        fmeta[victim].page = -1;
-		frame_store_free_frame(victim);
-		frame = frame_store_alloc_frame();
-
-    } else {
-		printf("Page fault!\n");
-	}
-
-	load_page_from_file(pcb->script_name, missing_page, frame);
-    // Update page table
-    pcb->page_table[missing_page] = frame;
-    fmeta[frame].pcb_of_frame = pcb;
-    fmeta[frame].page = missing_page;
-
-    frame_store_mark_used(frame);
-
-    return frame;
-} */
 
  int page_fault_occur(PCB *pcb, int missing_page) {
 
